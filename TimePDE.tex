@@ -71,14 +71,41 @@ k_{2} & = & f(t+c_{2}h,y_{n}+a_{21}k_{1}) \nonumber \\
 k_{3} & = & f(t+c_{3}h,y_{n}+a_{31}k_{1}+a_{32}k_{2}) \nonumber \\
 & \vdots & \\
 k_{s} & = & f(t+c_{s}h, y_{n}+\sum^{s-1}_{j=1}a_{s,j}k_{j}) \nonumber
-\end{IEEEeqnarray}The mathematician proposed a concise way of describing the numerical method for solving PDEs and ODEs using a tableau called the Butcher tableau.
+\end{IEEEeqnarray}The mathematician proposed a concise way of describing the numerical method for solving PDEs and ODEs using a tableau called the \emph{Butcher tableau} (see Fig.~\ref{fig:butcherTab}).
 
-From the earlier examples, we can see that:
-\begin{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/ButcherTableau.eps}
+\caption{The general form of a Butcher Tableau}
+\label{fig:butcherTab}
+\end{figure}
+
+From the earlier examples, we can see that the Butcher tableaus for the Euler method and RK4 method are given by Figs.~\ref{fig:eulerButcher} and Fig.~\ref{fig:rk4Butcher}. The Heun method is a special case of a more general method called the \emph{midpoint method}, which has the Butcher tableau given in Fig.~\ref{fig:midpointButcher}.
+
+\begin{figure}[!h]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/eulerButcher.eps}
 \caption{Butcher Tableau for the Euler method.}
+\label{fig:eulerButcher}
+\end{figure}\begin{figure}[!h]
+\centering
+\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/rk4Butcher.eps}
+\caption{Butcher Tableau for the RK4 method.}
+\label{fig:rk4Butcher}
+\end{figure}\begin{figure}[!h]
+\centering
+\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/midpointTableau.eps}
+\caption{Butcher Tableau for the midpoint method. The Heun method is the case where $\alpha=1$.}
+\label{fig:midpointButcher}
 \end{figure}
+
+\subsection{Stability of Explicit Methods and Stiffness of IVP}
+
+A major disadvantage of explicit methods is that the errors introduced when used to solve stiff IVPs can be extremely large. Examples of stiff problems are encountered when critically damped and overdamped systems are studied. Consider the example of a non-ideal voltage source charging a fixed capacitor, $C_\text{L}$, through an output resistance, $R_\text{out}$ to a voltage given by $V_\text{DD}$. The circuit equation to solve is the ODE expressed as\begin{IEEEeqnarray}{rCl}
+\frac{d V_\text{C}}{dt} & = & \frac{V_\text{DD}-V_\text{C}}{R_\text{out}C_\text{L}}
+\end{IEEEeqnarray}The ideal solution for the voltage across the capacitor, $V_\text{C}(t)$, when the initial condition is 0~V is\begin{IEEEeqnarray}{rCl}
+V_\text{C}(t) & = & V_\text{DD}\left(1-\exp\left(\frac{-t}{R_\text{out}C_\text{L}}\right)\right)
+\end{IEEEeqnarray}
 
 \section{The Backward (Implicit) Euler Method}
 
