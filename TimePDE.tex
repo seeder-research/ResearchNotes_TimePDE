@@ -25,12 +25,12 @@ Consider the function $y(t) = \sin (t)$ and its time derivative, $\dot{y}(t) = \
 Another commonly observed function is $y(t) = \exp(-t)$ and its time derivative, $\dot{y}(t) = -\exp(-t)$. The numerical solution for different time steps are plotted in Fig.~\ref{fig:IVP2}. As clearly seen, the error also reduces with the size of the time step.\afterpage{
 \begin{figure}[!t]
 \centering
-\includegraphics[trim=3in 0.3in 3in 0.3in, clip,scale=0.4]{ResearchNotes_TimePDE/figs/eulerTest.eps}
+\includegraphics[scale=0.4]{ResearchNotes_TimePDE/figs/eulerTest.eps}
 \caption{Numerical solution for the IVP with $\dot{y}(t)=\cos(t)$ and $y_{0}=0$ for different step sizes as compared to the ideal solution $y(t)=\sin(t)$.}
 \label{fig:IVP1}
 \end{figure}\begin{figure}[!t]
 \centering
-\includegraphics[trim=3in 0.3in 3in 0.3in, clip,scale=0.4]{ResearchNotes_TimePDE/figs/eulerTest2.eps}
+\includegraphics[scale=0.4]{ResearchNotes_TimePDE/figs/eulerTest2.eps}
 \caption{Numerical solution for the IVP with $\dot{y}(t)=-\exp(-t)$ and $y_{0}=1.0$ for different step sizes as compared to the ideal solution $y(t)=\exp(-t)$.}
 \label{fig:IVP2}
 \end{figure}\clearpage
@@ -105,7 +105,14 @@ A major disadvantage of explicit methods is that the errors introduced when used
 \frac{d V_\text{C}}{dt} & = & \frac{V_\text{DD}-V_\text{C}}{R_\text{out}C_\text{L}}
 \end{IEEEeqnarray}The ideal solution for the voltage across the capacitor, $V_\text{C}(t)$, when the initial condition is 0~V is\begin{IEEEeqnarray}{rCl}
 V_\text{C}(t) & = & V_\text{DD}\left(1-\exp\left(\frac{-t}{R_\text{out}C_\text{L}}\right)\right)
-\end{IEEEeqnarray}
+\end{IEEEeqnarray}Fig.~\ref{fig:falseOscillation} shows a case where a poorly chosen time step leads to a numerical solution that continually oscillates without converging to the steady-state solution.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{ResearchNotes_TimePDE/figs/forwardOscillations.eps}
+\caption{Poor numerical solution with oscillations was obtained as the problem is too stiff for the explicit numerical method.}
+\label{fig:falseOscillation}
+\end{figure}
 
 \section{The Backward (Implicit) Euler Method}
 
