@@ -99,6 +99,21 @@ From the earlier examples, we can see that the Butcher tableaus for the Euler me
 \label{fig:midpointButcher}
 \end{figure}
 
+\section{Adaptive time stepping}
+
+As can be seen in Figs.~\ref{fig:IVP1} and \ref{fig:IVP2}, there is a dependence of the accuracy of the solution returned by the numerical method and the time step used. In engineering simulations, the simulation runtime may be reduced is the time steps can be optimized. Adaptive time stepping algorithms attempt to optimize the time step used by ensuring that the estimated local truncation error (\emph{lte}) is bounded to some tolerance value.
+
+A family of embedded RK methods exist that is computationally efficient in calculating $y_{n+1}$ and the lte, $\widehat{\bm{e}}$. These methods are computationally efficient because they reduce the number of calls to evaluate $f()$, which is the most computationally intensive portion of the numerical method. Fig.~\ref{fig:embeddedButcher} shows the general form of the Butcher tableau for an embedded method.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/GeneralButcherTableau.eps}
+\caption{The general Butcher Tableau for embedded methods.}
+\label{fig:embeddedButcher}
+\end{figure}
+
+
+
 \subsection{Stability of Explicit Methods and Stiffness of IVP}
 
 A major disadvantage of explicit methods is that the errors introduced when used to solve stiff IVPs can be extremely large. Examples of stiff problems are encountered when critically damped and overdamped systems are studied. Consider the example of a non-ideal voltage source charging a fixed capacitor, $C_\text{L}$, through an output resistance, $R_\text{out}$ to a voltage given by $V_\text{DD}$. The circuit equation to solve is the ODE expressed as\begin{IEEEeqnarray}{rCl}
@@ -116,4 +131,3 @@ V_\text{C}(t) & = & V_\text{DD}\left(1-\exp\left(\frac{-t}{R_\text{out}C_\text{L
 
 \section{The Backward (Implicit) Euler Method}
 
-\section{Adaptive time stepping}
