@@ -82,17 +82,17 @@ k_{s} & = & f(t+c_{s}h, y_{n}+\sum^{s-1}_{j=1}a_{s,j}k_{j}) \nonumber
 
 From the earlier examples, we can see that the Butcher tableaus for the Euler method and RK4 method are given by Figs.~\ref{fig:eulerButcher} and Fig.~\ref{fig:rk4Butcher}. The Heun method is a special case of a more general method called the \emph{midpoint method}, which has the Butcher tableau given in Fig.~\ref{fig:midpointButcher}.
 
-\begin{figure}[!h]
+\begin{figure}[!b]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/eulerButcher.eps}
 \caption{Butcher Tableau for the Euler method.}
 \label{fig:eulerButcher}
-\end{figure}\begin{figure}[!h]
+\end{figure}\begin{figure}[!b]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/rk4Butcher.eps}
 \caption{Butcher Tableau for the RK4 method.}
 \label{fig:rk4Butcher}
-\end{figure}\begin{figure}[!h]
+\end{figure}\begin{figure}[!b]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/midpointTableau.eps}
 \caption{Butcher Tableau for the midpoint method. The Heun method is the case where $\alpha=1$.}
@@ -101,18 +101,48 @@ From the earlier examples, we can see that the Butcher tableaus for the Euler me
 
 \section{Adaptive time stepping}
 
-As can be seen in Figs.~\ref{fig:IVP1} and \ref{fig:IVP2}, there is a dependence of the accuracy of the solution returned by the numerical method and the time step used. In engineering simulations, the simulation runtime may be reduced is the time steps can be optimized. Adaptive time stepping algorithms attempt to optimize the time step used by ensuring that the estimated local truncation error (\emph{lte}) is bounded to some tolerance value.
+As can be seen in Figs.~\ref{fig:IVP1} and \ref{fig:IVP2}, there is a dependence of the accuracy of the solution returned by the numerical method and the time step used. In engineering simulations, the simulation runtime may be reduced is the time steps can be optimized. Adaptive time stepping algorithms attempt to optimize the time step used by ensuring that the estimated local truncation error (\emph{lte}) is bounded to some tolerance value. The lte is calculated by subtracting two approximations of $y_{n+1}$--one with order $p$ and another with order $p-1$, which leads to the lte having order $p$. These methods are sometimes called \emph{predictor-corrector} methods, since one expression gives a predicted value of $y_{n+1}$ and the lte gives a corrector t the predicted value.
 
 A family of embedded RK methods exist that is computationally efficient in calculating $y_{n+1}$ and the lte, $\widehat{\bm{e}}$. These methods are computationally efficient because they reduce the number of calls to evaluate $f()$, which is the most computationally intensive portion of the numerical method. Fig.~\ref{fig:embeddedButcher} shows the general form of the Butcher tableau for an embedded method.
 
-\begin{figure}[!h]
+\begin{figure}[H]
 \centering
-\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/GeneralButcherTableau.eps}
-\caption{The general Butcher Tableau for embedded methods.}
+\begin{minipage}{0.45\linewidth}
+\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/EmbeddedButcherTableau.eps}
+\caption{The general Butcher tableau for embedded methods.}
 \label{fig:embeddedButcher}
+\end{minipage}
+\quad\quad
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[scale=0.8]{ResearchNotes_TimePDE/figs/rk23.eps}
+\caption{The Butcher tableau for the Bogacki-Shampine method. The method has a second order predictor and third order corrector and the lte is $\bm{O}(h^{3})$.}
+\label{fig:rk23}
+\end{minipage}
 \end{figure}
 
+Some commonly used embedded explicit methods are those by Bogacki-Shampine (RK23) \cite{Bogacki1989}, Fehlberg (RK45F) \cite{Fehlberg1970}, Cash-Karp (RF45CK) \cite{Cash1990}, and Dormand-Prince (RK45DP) \cite{Dormand1980}. There are shown in Fig.~\ref{fig:rk23} to \ref{fig:rk45dp}. A key difference between the RK45 methods is the number of evaluations of $f()$ needed to estimate $y_{n+1}$.
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{ResearchNotes_TimePDE/figs/fehlberg.eps}
+\caption{The Butcher tableau for the Fehlberg method. The method has a fourth order predictor and fifth order corrector and the lte is $\bm{O}(h^{5})$.}
+\label{fig:fehlberg}
+\end{figure}\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{ResearchNotes_TimePDE/figs/rk45ck.eps}
+\caption{The Butcher tableau for the Cash-Karp method. The method has a fourth order predictor and fifth order corrector and the lte is $\bm{O}(h^{5})$.}
+\label{fig:rk45ck}
+\end{figure}\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{ResearchNotes_TimePDE/figs/rk45dp.eps}
+\caption{The Butcher tableau for the Dormand-Prince method. The method has a fourth order predictor and fifth order corrector and the lte is $\bm{O}(h^{5})$.}
+\label{fig:rk45dp}
+\end{figure}
+
+Adaptive time stepping is performed by calculating the ratio of an error tolerance to the lte. The next time step in the numerical method is then scaled according to the equation\begin{IEEEeqnarray}{rCl}
+h_{n+1} & = & 0.9 \times h_{n} \times \min\left(\max \left(\left(\frac{\text{tol}}{|\widehat{\bm{e}}|}\right)^{1/p},0.3\right), 2\right)
+\end{IEEEeqnarray}where $p$ is the order of the corrector. The factor of 0.9 is a safety factor to limit the change in $h$. The $\min$ and $\max$ further limit $h_{n+1}$ to the range $[0.27h_{n}, 1.8h_{n}]$.
 
 \subsection{Stability of Explicit Methods and Stiffness of IVP}
 
@@ -122,7 +152,7 @@ A major disadvantage of explicit methods is that the errors introduced when used
 V_\text{C}(t) & = & V_\text{DD}\left(1-\exp\left(\frac{-t}{R_\text{out}C_\text{L}}\right)\right)
 \end{IEEEeqnarray}Fig.~\ref{fig:falseOscillation} shows a case where a poorly chosen time step leads to a numerical solution that continually oscillates without converging to the steady-state solution.
 
-\begin{figure}
+\begin{figure}[H]
 \centering
 \includegraphics[scale=0.4]{ResearchNotes_TimePDE/figs/forwardOscillations.eps}
 \caption{Poor numerical solution with oscillations was obtained as the problem is too stiff for the explicit numerical method.}
