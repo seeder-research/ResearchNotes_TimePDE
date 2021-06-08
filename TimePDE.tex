@@ -97,7 +97,7 @@ From the earlier examples, we can see that the Butcher tableaus for the Euler me
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/rk4Butcher.eps}
 \caption{Butcher Tableau for the RK4 method.}
-\label{fig:rk4Butcher}
+\label{fig:rk4Butcher}are
 \end{figure}\begin{figure}[!b]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/midpointTableau.eps}
@@ -184,7 +184,42 @@ V_\text{C}(t) & = & V_\text{DD}\left(1-\exp\left(\frac{-t}{R_\text{out}C_\text{L
 \label{fig:falseOscillation}
 \end{figure}
 
-Another problem arises when adaptive time stepping is used. As the solution approaches the final steady-state value, the time step will reduce significantly to manage the error within the error tolerance, which leads to long simulation runtime even though the results are converging to the correct solution. These problems are overcome by implicit methods.
+Another problem arises when adaptive time stepping is used. As the solution approaches the final steady-state value, the time step will reduce significantly to manage the error within the error tolerance, which leads to long simulation runtime even though the results are converging to the correct solution. These problems can be overcome by implicit methods.
 
 \section{The Backward (Implicit) Euler Method}
 
+As presented in Equation~(\ref{eq:compImEuler}), the implicit Euler method is described by\begin{IEEEeqnarray}{rCl}
+y_{n+1} & = & y_{n} + hf(t_{n+1},y_{n+1}) \nonumber
+\end{IEEEeqnarray}The solution we are trying to solve for, $y_{n+1}$, appears on both sides of the equation, which makes it cumbersome to solve. The general approach to solve the equation utilizes an educated guess for the solution, $y^{*}_{n+1}$, and a residual function, $R(y^{*}_{n+1})$. If we substitute $y^{*}_{n+1}$ into Equation~(\ref{eq:compImEuler}), we obtain\begin{IEEEeqnarray}{rCl}
+y^{*}_{n+1} & = & y_{n} + hf(t_{n+1},y^{*}_{n+1}) + R(y^{*}_{n+1}) \\
+R(y^{*}_{n+1}) & = & y^{*}_{n+1} - y_{n} - hf(t_{n+1},y^{*}_{n+1}) \label{eq:imEulerRes}
+\end{IEEEeqnarray}We clearly see in Equation~(\ref{eq:imEulerRes}) that $R(y^{*}_{n+1})$ is the error in Equation~(\ref{eq:compImEuler}) if the educated guess was used as the solution. The objective now is to search for $y^{*}_{n+1}$ so that $R(y^{*}_{n+1})=0$. This can be achieved using the Newton-Raphson method. We start by assuming $R(y^{*}_{n+1})$ is sufficiently small that\begin{IEEEeqnarray}{rCl}
+R'(y^{*}_{n+1}) & \approx & \frac{R(y^{*}_{n+1})}{y^{*}_{n+1} - y^{**}_{n+1}}
+\end{IEEEeqnarray}where $R'(y^{*}_{n+1})$ is the derivative of the residual function with respect to $y^{*}_{n+1}$, and $y^{**}_{n+1}$ is our updated guess of $y_{n+1}$. Rearranging the terms, we obtain the equation\begin{IEEEeqnarray}{rCl}
+y^{**}_{n+1} & = & y^{*}_{n+1} - \frac{R(y^{*}_{n+1})}{R'(y^{*}_{n+1})} \label{eq:newtonUpdate0}
+\end{IEEEeqnarray}We may then check $(y^{**}_{n+1} - y^{*}_{n+1})$ (and possibly $R(y^{**}_{n+1})$) against some convergence criteria. If the criteria is met, $y^{**}_{n+1}$ is accepted as $y_{n+1}$ and we move to calculate the next time step in the implicit Euler method. If the criteria is not met, we substitute $y^{**}_{n+1}$ as $y^{*}_{n+1}$ in Equation~(\ref{eq:newtonUpdate0}) and update our guess for $y_{n+1}$ to check against the convergence criteria, repeating until the convergence criteria is met.
+
+In many engineering problems, Equation~(\ref{eq:compImEuler}) describes a system of equations where $y_{n+1}$ and $y_{n}$ describes values over a spatial grid at a particular time. In many cases, $f()$ is a matrix describing an operator. Consider the 1-D diffusion equation over a uniform spatial grid on the Cartesian axes described by\begin{IEEEeqnarray}{rCl}
+\frac{\partial y}{\partial t} & = & -D\overrightarrow{\nabla}^{2}y \\
+& = & -\frac{D}{dx^{2}}Ay
+\end{IEEEeqnarray}where $D$is the diffusion coefficient, $dx$ is the spacing between grid points, and $A$ is the tridiagonal matrix representing the Laplacian operator in Cartesian coordinates. Substituting into Equation~(\ref{eq:compImEuler}), the discretized diffusion IVP is solved by the implicit Euler method by\begin{IEEEeqnarray}{rCl}
+y_{n+1} & = & y_{n} - h\frac{D}{dx^{2}}Ay_{n+1} \\
+\left(I + h\frac{D}{dx^{2}}A\right)y_{n+1} & = & y_{n} \\
+y_{n+1} & = & \left(I + h\frac{D}{dx^{2}}A\right)^{-1}y_{n} \label{eq:imEulerDiff}
+\end{IEEEeqnarray}where $I$ is the identity matrix. Equation~(\ref{eq:imEulerDiff}) shows that $y_{n+1}$ is found by inverting the matrix $\left(I + h\frac{D}{dx^{2}}A\right)$ and pre-multiplying with $y_{n}$.
+
+\section{Higher Order Implicit Methods}
+
+Just as for explicit methods, a family of higher order implicit methods also exist.
+
+\subsection{The Theta Method}
+
+The Theta method combines the explicit Euler step with an implicit Euler step:\begin{IEEEeqnarray}{rCl}
+y_{n+1} & =  y_{n} + h\theta{}f(t_{n},y_{n}) + h(1-\theta)f(t_{n}, y_{n+1})
+\end{IEEEeqnarray}The Crank-Nicolson or trapezoidal method is obtained if $\theta=0.5$, and hence\begin{IEEEeqnarray}{rCl}
+y_{n+1} & =  y_{n} + h\frac{f(t_{n},y_{n}) + f(t_{n}, y_{n+1})}{2}
+\end{IEEEeqnarray}Note that due to the implicit nature of the backward Euler step, the Crank-Nicolson method is not an average between the forward and backward Euler steps. Applying the Crank-Nicolson method to the diffusion IVP as before, we obtain\begin{IEEEeqnarray}{rCl}
+y_{n+1} & = & y_{n} - \frac{h}{2}\frac{D}{dx^{2}}Ay_{n} - \frac{h}{2}\frac{D}{dx^{2}}Ay_{n+1} \\
+\left(I + \frac{h}{2}\frac{D}{dx^{2}}A\right)y_{n+1} & = & \left(I - \frac{h}{2}\frac{D}{dx^{2}}A\right)y_{n} \\
+y_{n+1} & = & \left(I + \frac{h}{2}\frac{D}{dx^{2}}A\right)^{-1}\left(I - \frac{h}{2}\frac{D}{dx^{2}}A\right)y_{n}
+\end{IEEEeqnarray}
