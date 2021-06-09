@@ -130,6 +130,7 @@ The algorithm for executing the explicit methods is shown in Algorithm~\ref{algo
     \State $k_{i0} \gets f(t_\text{int},y_\text{int})$
     \State $\delta{}y \gets \delta{}y + b_{i0}k_{i0}$
   \EndFor
+  \State $h_{n+1} \gets h_{n}$
   \State $y_{n+1} \gets y_{n} + h_{n}\cdot\delta{}y$
   \State $t_{n+1} \gets t_{n} + h_{n}$
   \State $n \gets n+1$
