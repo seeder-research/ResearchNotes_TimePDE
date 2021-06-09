@@ -73,37 +73,69 @@ k_{4} & = & f(t_{n+1},y_{n}+hk_{3}) \nonumber
 From the methods discussed so far, it can be seen that the general equation for determining $y_{n+1}$ in single step methods is \begin{IEEEeqnarray}{rCl}
 y_{n+1} & = & y_{n} + h\sum^{s}_{i=1}b_{i}k_{i},~\text{where} \\
 k_{1} & = & f(t_{n},y_{n}) \nonumber \\
-k_{2} & = & f(t_{n}+c_{2}h,y_{n}+a_{21}k_{1}) \nonumber \\
-k_{3} & = & f(t_{n}+c_{3}h,y_{n}+a_{31}k_{1}+a_{32}k_{2}) \nonumber \\
+k_{2} & = & f(t_{n}+c_{2}h,y_{n}+ha_{21}k_{1}) \nonumber \\
+k_{3} & = & f(t_{n}+c_{3}h,y_{n}+ha_{31}k_{1}+ha_{32}k_{2}) \nonumber \\
 & \vdots & \\
-k_{s} & = & f(t_{n}+c_{s}h, y_{n}+\sum^{s-1}_{j=1}a_{s,j}k_{j}) \nonumber
+k_{s} & = & f(t_{n}+c_{s}h, y_{n}+h\sum^{s-1}_{j=1}a_{s,j}k_{j}) \nonumber
 \end{IEEEeqnarray}where $k_{i}$ is calculated in the $i$-th stage of the method. The mathematician John C. Butcher proposed a concise way of describing the numerical methods using a tableau called the \emph{Butcher tableau} (see Fig.~\ref{fig:butcherTab}).
-
-\begin{figure}[H]
-\centering
-\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/ButcherTableau.eps}
-\caption{The general form of a Butcher Tableau}
-\label{fig:butcherTab}
-\end{figure}
 
 From the earlier examples, we can see that the Butcher tableaus for the Euler method and RK4 method are given by Figs.~\ref{fig:eulerButcher} and Fig.~\ref{fig:rk4Butcher}. The Heun method is a special case of a more general method called the \emph{midpoint method}, which has the Butcher tableau given in Fig.~\ref{fig:midpointButcher}.
 
 \begin{figure}[!b]
 \centering
+\includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/ButcherTableau.eps}
+\caption{The general form of a Butcher Tableau}
+\label{fig:butcherTab}
+\end{figure}
+\begin{figure}[!b]
+\centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/eulerButcher.eps}
 \caption{Butcher Tableau for the Euler method.}
 \label{fig:eulerButcher}
-\end{figure}\begin{figure}[!b]
+\end{figure}
+\begin{figure}[!b]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/rk4Butcher.eps}
 \caption{Butcher Tableau for the RK4 method.}
 \label{fig:rk4Butcher}are
-\end{figure}\begin{figure}[!b]
+\end{figure}
+\begin{figure}[!b]
 \centering
 \includegraphics[scale=1.0]{ResearchNotes_TimePDE/figs/midpointTableau.eps}
 \caption{Butcher Tableau for the midpoint method. The Heun method is the case where $\alpha=1$.}
 \label{fig:midpointButcher}
 \end{figure}
+
+The algorithm for executing the explicit methods is shown in Algorithm~\ref{algo:algo1}.
+\begin{algorithm}[H]
+\caption{Numerical method to solve IVP without adaptive time stepping}
+\label{algo:algo1}
+\hspace*{\algorithmicindent} $\textbf{Inputs:}~a_{i,j},~b_{i}~\text{and}~c_{i}~\text{from Butcher tableau,}~f(t,y),~t_\text{end},~h_\text{init},~\text{and}~y_{0}$ \\
+\hspace*{\algorithmicindent} $\textbf{Outputs:}~y~\text{for all discrete time points,~}t\in{}[0,~t_\text{end}] $
+\begin{algorithmic}[1]
+\State $n \gets 0$
+\State $t_{n} \gets 0$
+\State $y_{n} \gets y_{0}$
+\State $h_{n} \gets h_\text{init}$
+\While{$t_{n} < t_\text{end}$}
+  \If{$t_\text{end} < t_{n} + h_{n}$}
+    \State $h_{n} = t_\text{end} - t_{n}$
+  \EndIf
+  \State $k_{1} \gets f(t_{n}, y_{n})$
+  \State $\delta{}y \gets b_{1}k_{1}$
+  \For{$i0 \gets 2$, number of stages defined in the Butcher tableau}
+    \State $t_\text{int} \gets t_{n} + c_{i0}h_{n}$
+    \State $j \gets$ number of substeps in stage~$i0$
+    \State $y_\text{int} \gets y_{n} + h_{n}\sum^{j}_{i1=1}a_{i0,i1}k_{i1}$
+    \State $k_{i0} \gets f(t_\text{int},y_\text{int})$
+    \State $\delta{}y \gets \delta{}y + b_{i0}k_{i0}$
+  \EndFor
+  \State $y_{n+1} \gets y_{n} + h_{n}\cdot\delta{}y$
+  \State $t_{n+1} \gets t_{n} + h_{n}$
+  \State $n \gets n+1$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
 
 \afterpage{
 \begin{figure}[H]
@@ -168,6 +200,48 @@ I_{n} & = & I_\text{temp} + \log(h_{n+1}) - \log(h_{n})
 h_\text{temp} & = & \left(\frac{\text{tol}}{|\bm{\widehat{r}}_{n}|/h_{n}}\right)^{K_\text{I}}\left(\frac{|\bm{\widehat{r}}_{n-1}|/h_{n-1}}{|\bm{\widehat{r}}_{n}|/h_{n}}\right)^{K_\text{P}}h_{n} \label{eq:gustafTrack} \\
 h_{n+1} & = & \min\left(h_\text{temp},\theta_\text{max}h_{n}\right)
 \end{IEEEeqnarray}where it is recommended that $\theta_\text{max}=2.0$. Equation~(\ref{eq:gustafTrack}) states that during the execution of the algorithm, $|\bm{\widehat{r}}_{n}|/h_{n}$ needs to be saved for the next time step for adaptive time stepping. Furthermore, two sets of parameters are recommended depending on whether the time step is rejected (\emph{e.g.}, $|\bm{\widehat{r}}_{n}|/h_{n}>1.2\cdot{}\text{tol}$) or accepted. If the time step is accepted, use $K_\text{P}=0.13$ and $K_\text{I}=1/15$. Otherwise, use $K_\text{P}=0$ and $K_\text{I}=1/5$.
+
+The algorithm for executing the explicit methods with adaptive time stepping is shown in Algorithm~\ref{algo:algo2}, where the function, $adaptH()$, can implement either the conventional method, or the Gustafsson method. \begin{algorithm}[H]
+\caption{Numerical method to solve IVP with adaptive time stepping}
+\label{algo:algo2}
+\hspace*{\algorithmicindent} $\textbf{Inputs:}~p\text{~(order of embedded corrector)},~a_{i,j},~b_{i},~b^{*}_{i}~\text{and}~c_{i}~\text{from Butcher tableau,}~f(t,y),~errTol,$ \\
+\hspace*{\algorithmicindent}\hspace*{\algorithmicindent}$adaptH(),~t_\text{end},~h_\text{init},~\text{and}~y_{0}$ \\
+\hspace*{\algorithmicindent} $\textbf{Outputs:}~y~\text{for all discrete time points,~}t\in{}[0,~t_\text{end}] $
+\begin{algorithmic}[1]
+\State $n \gets 0$
+\State $t_{n} \gets 0$
+\State $y_{n} \gets y_{0}$
+\State $h_{n} \gets h_\text{init}$
+\While{$t_{n} < t_\text{end}$}
+  \If{$t_\text{end} < t_{n} + h_{n}$}
+    \State $h_{n} = t_\text{end} - t_{n}$
+  \EndIf
+  \State $rejectH \gets true$
+  \While{$rejectH$~is~$true$}
+    \State $k_{1} \gets f(t_{n}, y_{n})$
+    \State $\delta{}y \gets b_{1}k_{1}$
+    \State $LTE_{n} \gets (b_{1} - b^{*}_{1})k_{1}$
+    \For{$i0 \gets 2$, number of stages defined in the Butcher tableau}
+      \State $t_\text{int} \gets t_{n} + c_{i0}h_{n}$
+      \State $j \gets$ number of substeps in stage~$i0$
+      \State $y_\text{int} \gets y_{n} + h_{n}\sum^{j}_{i1=1}a_{i0,i1}k_{i1}$
+      \State $k_{i0} \gets f(t_\text{int},y_\text{int})$
+      \State $\delta{}y \gets \delta{}y + b_{i0}k_{i0}$
+      \State $LTE_{n} \gets LTE_{n} + (b_{i0} - b^{*}_{i0})k_{i0}$
+    \EndFor
+    \State $rejectH, h_\text{recommend} \gets adaptH(p, h_{n}, errTol, LTE_{n}, \delta{}y)$
+    \If{$rejectH$ is $true$}
+      \State $h_{n} \gets h_\text{recommend}$
+    \Else
+      \State $h_{n+1} \gets h_\text{recommend}$
+    \EndIf
+  \EndWhile
+  \State $y_{n+1} \gets y_{n} + h_{n}\cdot\delta{}y$
+  \State $t_{n+1} \gets t_{n} + h_{n}$
+  \State $n \gets n+1$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Stability of Explicit Methods and Stiffness of IVP}\label{subsec:stabilityExp}
 
